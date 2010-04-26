@@ -9,7 +9,6 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-
 import org.jdesktop.application.Task;
 
 import com.google.gdata.util.ServiceException;
