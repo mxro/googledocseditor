@@ -4,6 +4,11 @@
 
 package de.mxro.textedit.gdocseditor.gui;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.EventObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 
@@ -27,6 +32,20 @@ public class GoogleDocsEditorGUIApp extends SingleFrameApplication {
      @Override protected void ready() {
          isReady = true;
      }
+
+    @Override
+    public void exit(EventObject event) {
+        
+        getView().statusPanel.setVisible(true);
+        getView().statusMessageLabel.setText("Synchronizing");
+        getView().statusAnimationLabel.setVisible(true);
+        getView().getFrame().pack();
+        getView().getFrame().doLayout();
+        getView().getFrame().dispose();
+        //this.getView().
+        this.getView().app.doSaveEntries();
+        super.exit(event);
+    }
 
     /**
      * At startup create and show the main frame of the application.

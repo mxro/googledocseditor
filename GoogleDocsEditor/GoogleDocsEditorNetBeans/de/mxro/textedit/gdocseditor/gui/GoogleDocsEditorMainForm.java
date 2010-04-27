@@ -4,6 +4,8 @@
 
 package de.mxro.textedit.gdocseditor.gui;
 
+import de.mxro.textedit.gdocseditor.GDocsEditorApp;
+import de.mxro.textedit.gdocseditor.GDocsEditorData;
 import de.mxro.textedit.gdocseditor.gui.GoogleDocsEditorAboutBox;
 import java.awt.dnd.DnDConstants;
 import org.jdesktop.application.Action;
@@ -19,6 +21,7 @@ import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
 /**
@@ -28,11 +31,12 @@ public class GoogleDocsEditorMainForm extends FrameView {
 
    public static String SETTINGSFILENAME = "gdocssettings.xml";
 
-
+   public GDocsEditorApp app;
    public EditorCallbacks callbacks;
    private GDocsSettings settings;
 
     public void setSettings(GDocsSettings settings) {
+
         this.settings = settings;
     }
 
@@ -57,7 +61,7 @@ public class GoogleDocsEditorMainForm extends FrameView {
     }
 
     public interface EditorCallbacks {
-        public void save();
+        public void save(GDocsEditorData.GDocNode gdocnode);
         public void refresh();
         public void preferencesEdited();
         
@@ -165,8 +169,8 @@ public class GoogleDocsEditorMainForm extends FrameView {
         mainPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
-        jButton2 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jToolBar2 = new javax.swing.JToolBar();
         jToolBar3 = new javax.swing.JToolBar();
@@ -176,6 +180,10 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jPanel5 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTree1 = new javax.swing.JTree();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jTitleField = new javax.swing.JTextField();
+        jPanel6 = new javax.swing.JPanel();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
@@ -192,7 +200,6 @@ public class GoogleDocsEditorMainForm extends FrameView {
         mainPanel.setName("mainPanel"); // NOI18N
         mainPanel.setLayout(new java.awt.BorderLayout());
 
-        jPanel1.setMinimumSize(null);
         jPanel1.setName("jPanel1"); // NOI18N
         jPanel1.setPreferredSize(new java.awt.Dimension(211, 65));
         jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
@@ -201,22 +208,22 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jToolBar1.setName("jToolBar1"); // NOI18N
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(de.mxro.textedit.gdocseditor.gui.GoogleDocsEditorGUIApp.class).getContext().getActionMap(GoogleDocsEditorMainForm.class, this);
-        jButton2.setAction(actionMap.get("editPreferences")); // NOI18N
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(de.mxro.textedit.gdocseditor.gui.GoogleDocsEditorGUIApp.class).getContext().getResourceMap(GoogleDocsEditorMainForm.class);
-        jButton2.setText(resourceMap.getString("jButton2.text")); // NOI18N
-        jButton2.setFocusable(false);
-        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton2.setName("jButton2"); // NOI18N
-        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton2);
-
         jButton1.setAction(actionMap.get("Refresh")); // NOI18N
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(de.mxro.textedit.gdocseditor.gui.GoogleDocsEditorGUIApp.class).getContext().getResourceMap(GoogleDocsEditorMainForm.class);
         jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
         jButton1.setFocusable(false);
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton1.setName("jButton1"); // NOI18N
         jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton1);
+
+        jButton2.setAction(actionMap.get("editPreferences")); // NOI18N
+        jButton2.setText(resourceMap.getString("jButton2.text")); // NOI18N
+        jButton2.setFocusable(false);
+        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton2.setName("jButton2"); // NOI18N
+        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(jButton2);
 
         jButton3.setAction(actionMap.get("Save")); // NOI18N
         jButton3.setText(resourceMap.getString("jButton3.text")); // NOI18N
@@ -269,6 +276,26 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jPanel5.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
         jSplitPane1.setLeftComponent(jPanel5);
+
+        jPanel3.setName("jPanel3"); // NOI18N
+        jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.PAGE_AXIS));
+
+        jPanel4.setMaximumSize(new java.awt.Dimension(32767, 30));
+        jPanel4.setName("jPanel4"); // NOI18N
+        jPanel4.setPreferredSize(new java.awt.Dimension(30, 30));
+        jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.LINE_AXIS));
+
+        jTitleField.setText(resourceMap.getString("jTitleField.text")); // NOI18N
+        jTitleField.setName("jTitleField"); // NOI18N
+        jPanel4.add(jTitleField);
+
+        jPanel3.add(jPanel4);
+
+        jPanel6.setName("jPanel6"); // NOI18N
+        jPanel6.setLayout(new javax.swing.BoxLayout(jPanel6, javax.swing.BoxLayout.PAGE_AXIS));
+        jPanel3.add(jPanel6);
+
+        jSplitPane1.setRightComponent(jPanel3);
 
         jPanel2.add(jSplitPane1);
 
@@ -353,18 +380,35 @@ public class GoogleDocsEditorMainForm extends FrameView {
 
     @Action
     public Task Save() {
-        return new SaveTask(getApplication());
+
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+        jTree1.getLastSelectedPathComponent();
+
+    	if (node == null) return null;
+    	if (!(node.getUserObject() instanceof GDocsEditorData.GDocNode)) return null;
+
+    	GDocsEditorData.GDocNode gdocnode = (GDocsEditorData.GDocNode) node.getUserObject();
+
+        return new SaveTask(getApplication(), gdocnode);
     }
 
-    private class SaveTask extends org.jdesktop.application.Task<Object, Void> {
-        SaveTask(org.jdesktop.application.Application app) {
+    public SaveTask createSaveTask(GDocsEditorData.GDocNode gdocsnode) {
+        return new SaveTask(getApplication(), gdocsnode);
+    }
+
+    public class SaveTask extends org.jdesktop.application.Task<Object, Void> {
+        GDocsEditorData.GDocNode gdocnode;
+        
+        SaveTask(org.jdesktop.application.Application app, GDocsEditorData.GDocNode gdocnode) {
             // Runs on the EDT.  Copy GUI state that
             // doInBackground() depends on from parameters
             // to SaveTask fields, here.
             super(app);
+
+            this.gdocnode = gdocnode;
         }
         @Override protected Object doInBackground() {
-            callbacks.save();
+            callbacks.save(gdocnode);
             return null;  // return your result
         }
         @Override protected void succeeded(Object result) {
@@ -384,6 +428,8 @@ public class GoogleDocsEditorMainForm extends FrameView {
             // doInBackground() depends on from parameters
             // to RefreshTask fields, here.
             super(app);
+
+            this.setMessage("Synchronizing with Google Docs");
         }
         @Override protected Object doInBackground() {
             // Your Task's code here.  This method runs
@@ -410,7 +456,7 @@ public class GoogleDocsEditorMainForm extends FrameView {
                 dialog.setVisible(true);
 
                 this.setSettings(dialog.getSettings());
-                System.out.println(dialog.gDocsSettingsPanel1.gDocsSettings1.getUsername());
+                //System.out.println(dialog.gDocsSettingsPanel1.gDocsSettings1.getUsername());
                 try {
                 this.getApplication().getContext().getLocalStorage().save(this.getSettings(), SETTINGSFILENAME);
                 System.out.println("Settings saved at: "+this.getApplication().getContext().getLocalStorage().getDirectory());
@@ -429,9 +475,13 @@ public class GoogleDocsEditorMainForm extends FrameView {
     public javax.swing.JButton jButton3;
     public javax.swing.JPanel jPanel1;
     public javax.swing.JPanel jPanel2;
+    public javax.swing.JPanel jPanel3;
+    public javax.swing.JPanel jPanel4;
     public javax.swing.JPanel jPanel5;
+    public javax.swing.JPanel jPanel6;
     public javax.swing.JScrollPane jScrollPane1;
     public javax.swing.JSplitPane jSplitPane1;
+    public javax.swing.JTextField jTitleField;
     public javax.swing.JToolBar jToolBar1;
     public javax.swing.JToolBar jToolBar2;
     public javax.swing.JToolBar jToolBar3;
