@@ -14,6 +14,8 @@ import com.google.gdata.data.docs.DocumentListEntry;
 
 import com.thoughtworks.xstream.XStream;
 import de.mxro.gdocs.GoogleDocsAdapter;
+import java.util.LinkedList;
+import javax.swing.SwingUtilities;
 import org.jdesktop.application.LocalStorage;
 
 public class GDocsEditorData {
@@ -50,14 +52,14 @@ public class GDocsEditorData {
 
 
     private LocalStorage storage;
-	private DefaultMutableTreeNode googleDocsNode;
-    private DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode("not loaded");
+	public DefaultMutableTreeNode googleDocsNode;
+    private DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode("loading ...");
 	
 	private GoogleDocsAdapter adapter;
 	
 	//private final GDocsEditorApp editor;
 
-	private final DefaultTreeModel treeModel;
+	public final DefaultTreeModel treeModel;
 	
 	public DefaultTreeModel getTreeModel() {
 		return treeModel;
@@ -75,15 +77,56 @@ public class GDocsEditorData {
 
     private static XStream xstream = new XStream();
 
+    public void updateNode(GDocNode node) {
+        int count = treeModel.getChildCount(googleDocsNode);
+        for (int i=0;i < count; i++) {
+            DefaultMutableTreeNode treenode = ( DefaultMutableTreeNode) treeModel.getChild(googleDocsNode, i);
+
+            if (!( treenode.getUserObject() instanceof GDocNode)) continue;
+
+            GDocNode nodeitem = (GDocNode) treenode.getUserObject();
+
+            if (nodeitem.entry.getDocId().equals(node.entry.getDocId())) {
+                System.out.println("updated node: "+nodeitem.plainText+" "+nodeitem.entry.getUpdated());
+                treenode.setUserObject(node);
+            }
+
+
+        }
+    }
+
+    public GDocsEditorData clearLocalCache(GDocNode node) throws IOException {
+
+        this.storage.deleteFile(node.docId);
+
+
+        return this;
+    }
+
+    public GDocsEditorData clearLocalCache() throws IOException {
+       for (int i=0;i < treeModel.getChildCount(googleDocsNode); i++) {
+            DefaultMutableTreeNode treenode = ( DefaultMutableTreeNode) treeModel.getChild(googleDocsNode, i);
+
+            if (!( treenode.getUserObject() instanceof GDocNode)) continue;
+            GDocNode node = (GDocNode) treenode.getUserObject();
+            clearLocalCache(node);
+
+
+        }
+        this.storage.deleteFile("documentFeed.xml");
+        return this;
+    }
+
     public GDocsEditorData saveLocalFile(GDocNode node, String document) throws IOException {
         node.setDocumentData(document);
         String xml = xstream.toXML(node);
         //System.out.println("Save File: "+node.docId+" "+document);
+
         this.storage.save(xml, node.docId);
         return this;
     }
 
-    public GDocsEditorData downloadToLocalFile(GDocNode node) throws IOException, MalformedURLException, ServiceException {
+    public GDocsEditorData downloadGoogleDocToLocalFile(GDocNode node) throws IOException, MalformedURLException, ServiceException {
         if (this.getAdapter() == null) return this;
 
 
@@ -105,30 +148,36 @@ public class GDocsEditorData {
         if (this.getAdapter() == null) return this;
 
         DocumentListEntry entry = this.adapter.getDocumentEntry(node.entry.getDocId());
+        if (entry == null) return this;
         //System.out.println(entry.getTitle().getPlainText());
         //System.out.println(entry.getUpdated()+" "+node.entry.getUpdated()+" "+entry.getUpdated().compareTo(node.entry.getUpdated()));
-        if (entry.getUpdated().compareTo(node.entry.getUpdated()) < 0) {
+        if (entry.getUpdated() != null && entry.getUpdated().compareTo(node.entry.getUpdated()) != 0) {
            System.out.println("upload: "+node.plainText);
-           if (forceCache) this.loadCache(node);
+           if (forceCache || node.getDocumentData() == null) this.loadCache(node);
+
+           if (node.getDocumentData() == null) return this;
+           
            String uploadHTML = getAdapter().prepareHTMLDocumentBeforeUpload(node.getDocumentData());
     	    getAdapter().updateDocument(node.entry, uploadHTML);
+
         }
 
         return this;
     }
 
     public GDocsEditorData uploadAll(List<DocumentListEntry> entries, boolean forceCache) {
+        
         for (DocumentListEntry e : entries) {
             GDocNode node = new GDocNode(e.getTitle().getPlainText(), e.getDocId(), e);
-            
+            //System.out.println("upload process node: "+node.plainText+" "+node.entry.getUpdated());
             uploadDocument(node,forceCache);
         }
         return this;
     }
 
     public GDocsEditorData uploadAll() {
-        int count = treeModel.getChildCount(googleDocsNode);
-        for (int i=0;i < count; i++) {
+        //int count = ;
+        for (int i=0;i < treeModel.getChildCount(googleDocsNode); i++) {
             DefaultMutableTreeNode treenode = ( DefaultMutableTreeNode) treeModel.getChild(googleDocsNode, i);
 
             if (!( treenode.getUserObject() instanceof GDocNode)) continue;
@@ -143,7 +192,7 @@ public class GDocsEditorData {
     public GDocsEditorData cacheDocument(GDocNode node) throws IOException, MalformedURLException, ServiceException {
         loadCache(node);
         if (node.getDocumentData() ==  null) {
-                downloadToLocalFile(node);
+                downloadGoogleDocToLocalFile(node);
                  
 
             } else {
@@ -151,8 +200,11 @@ public class GDocsEditorData {
 
                DocumentListEntry entry = this.adapter.getDocumentEntry(node.entry.getDocId());
 
-              if (entry.getUpdated().compareTo(node.entry.getUpdated()) > 0) {
-                downloadToLocalFile(node);
+               //                            Notes                          2010-04-28T09:03:35.505Z compare 2010-04-28T09:03:35.515Z -1
+
+               System.out.println("cache: "+entry.getTitle().getPlainText()+" "+entry.getUpdated()+" compare "+node.entry.getUpdated()+" "+entry.getUpdated().compareTo(node.entry.getUpdated()));
+              if (node.entry.getUpdated() != null && entry.getUpdated().compareTo(node.entry.getUpdated()) > 0) {
+                downloadGoogleDocToLocalFile(node);
               }
             }
         return this;
@@ -165,7 +217,7 @@ public class GDocsEditorData {
 
             if (!( treenode.getUserObject() instanceof GDocNode)) continue;
             GDocNode node = (GDocNode) treenode.getUserObject();
-            System.out.println("Cached: "+node.plainText);
+            //System.out.println("Cached: "+node.plainText);
             cacheDocument(node);
 
 
@@ -180,7 +232,7 @@ public class GDocsEditorData {
 
             String xml = (String) this.storage.load(node.docId);
             GDocNode cached = (GDocNode) xstream.fromXML(xml);
-            if ( (cached.entry.getUpdated().compareTo(node.entry.getUpdated()) <= 0) || this.getAdapter() == null) {
+            if ( (cached.entry.getUpdated().compareTo(node.entry.getUpdated()) >= 0) || this.getAdapter() == null) {
                 node.setDocumentData(cached.getDocumentData());
             }
 
@@ -192,10 +244,25 @@ public class GDocsEditorData {
     }
 
 
-    public void saveEntries() {
-        if (entries == null) return;
+    public List<DocumentListEntry> getEntriesFromTree() {
+        LinkedList<DocumentListEntry> list = new LinkedList<DocumentListEntry>();
+        int count = treeModel.getChildCount(googleDocsNode);
+        for (int i=0;i < count; i++) {
+             DefaultMutableTreeNode treenode = ( DefaultMutableTreeNode) treeModel.getChild(googleDocsNode, i);
 
-        String xml = xstream.toXML(entries);
+            if (!( treenode.getUserObject() instanceof GDocNode)) continue;
+            GDocNode node = (GDocNode) treenode.getUserObject();
+            // System.out.println("treeentry: "+node.plainText+" "+node.entry.getUpdated());
+            list.add(node.entry);
+
+        }
+        return list;
+    }
+
+    public void saveEntries() {
+        if (treeModel == null) return;
+        
+        String xml = xstream.toXML(getEntriesFromTree());
         try {
             this.storage.save(xml, "documentFeed.xml");
         } catch (IOException ex) {
@@ -204,40 +271,77 @@ public class GDocsEditorData {
     }
     public List<DocumentListEntry> entries;
 
-    public void loadLocalEntries() {
+    public List<DocumentListEntry> loadLocalEntries() {
         try {
                 Object obj = this.storage.load("documentFeed.xml");
                 if (obj == null) {
-                    return;
+                    return null;
                 }
                 String xml = (String) obj;
-                entries = (List<DocumentListEntry>) xstream.fromXML(xml);
+                List<DocumentListEntry> localentries = (List<DocumentListEntry>) xstream.fromXML(xml);
+                return localentries;
             } catch (IOException ex) {
                 Logger.getLogger(GDocsEditorData.class.getName()).log(Level.SEVERE, null, ex);
-                return;
+                return null;
             }
     }
 
-	public void loadEntries() {
-		
-        if (getAdapter() != null) {
-		  //adapter.loadDocumentsList();
-          entries = adapter.getDocumentList();
-        } else {
-            loadLocalEntries();
 
+       private DefaultMutableTreeNode removeAllChildren(DefaultMutableTreeNode rootNode){
+         while(rootNode.getChildCount() > 0){
+          // DefaultMutableTreeNode t = (DefaultMutableTreeNode)rootNode.getChildAt(0);
+          //treeModel.removeNodeFromParent(t);
+           rootNode.remove(0);
          }
+    return rootNode;
+    }
+
+
+    public void refreshTree() {
+        this.removeAllChildren(this.googleDocsNode);
+        //this.googleDocsNode.removeAllChildren();
+        this.googleDocsNode.insert(this.tempNode, 0);
+       // treeModel.insertNodeInto(this.tempNode, this.googleDocsNode, 0);
+        //this.googleDocsNode.add(this.tempNode);
         for(int i=0; i<entries.size(); i++) {
           DocumentListEntry entry = new DocumentListEntry(entries.get(i));
                  // entries.get(i);
           GDocNode newNode = new GDocNode(entry.getTitle().getPlainText(), entry.getDocId(), entry);
-          this.loadCache(newNode);
-          treeModel.insertNodeInto(new DefaultMutableTreeNode(newNode), googleDocsNode, treeModel.getChildCount(googleDocsNode)-1);
-          
-        }
-        
+          //this.loadCache(newNode);
+          googleDocsNode.insert(new DefaultMutableTreeNode(newNode), treeModel.getChildCount(googleDocsNode));
+         // treeModel.insertNodeInto(new DefaultMutableTreeNode(newNode), googleDocsNode, treeModel.getChildCount(googleDocsNode));
 
-        if (adapter != null) adapter.loadDocumentsList();
+        }
+        googleDocsNode.remove(this.tempNode);
+        //treeModel.removeNodeFromParent(this.tempNode);
+        treeModel.nodeStructureChanged(this.googleDocsNode);
+        //this.googleDocsNode.remove(this.tempNode);
+    }
+
+	public void loadEntries(boolean loadLocal) {
+
+        if (loadLocal) {
+            entries = loadLocalEntries();
+            if (entries != null) return;
+        }
+
+        if (getAdapter() != null) {
+		  //adapter.loadDocumentsList();
+          entries = adapter.getDocumentList();
+        } else {
+            entries = loadLocalEntries();
+
+         }
+
+        refreshTree();
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+              if (adapter != null) adapter.loadDocumentsList();
+            }
+        });
+        
 	}
 	
 	public GoogleDocsAdapter getAdapter() {

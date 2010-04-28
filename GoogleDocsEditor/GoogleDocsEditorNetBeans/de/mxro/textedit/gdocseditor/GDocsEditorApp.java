@@ -1,6 +1,8 @@
 package de.mxro.textedit.gdocseditor;
 
+import com.google.gdata.data.DateTime;
 import com.google.gdata.data.PlainTextConstruct;
+import com.google.gdata.data.docs.DocumentListEntry;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
@@ -26,88 +28,193 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
-import java.util.Timer;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 public class GDocsEditorApp {
 
-	public GoogleDocsEditorMainForm mainFrame;
+    public GoogleDocsEditorMainForm mainFrame;
+    private MxroEkitTextPane jMxroEditorPane;
+    private JTree jTree1;
+    private GDocsEditorData data;
+    private GDocsEditorData.GDocNode activeNode;
+    private String initialText = null;
 
-	private MxroEkitTextPane jMxroEditorPane;
-	private JTree jTree1; 
+    public void doSaveEntries() {
+        this.data.saveEntries();
+        if (this.data.getAdapter() != null) {
+            //this.data.uploadAll();
+            this.data.loadEntries(false);
+        }
+    }
 
-	private GDocsEditorData data;
+    public void doClearLocalCache() {
+        try {
+            this.data.clearLocalCache();
+        } catch (IOException ex) {
+            Logger.getLogger(GDocsEditorApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
-   private GDocsEditorData.GDocNode activeNode;
-   private String initialText=null;
+    public void doDeleteDocument(GDocsEditorData.GDocNode gdocnode) {
+        if (activeNode == null) {
+            return;
+        }
+        if (this.data.getAdapter() == null) {
+            return;
+        }
 
+        this.data.getAdapter().trashDocument(activeNode.entry);
 
-   public void doSaveEntries() {
-       this.data.saveEntries();
-       if (this.data.getAdapter() != null)
-       this.data.uploadAll();
-   }
+        doRefresh();
+    }
 
-	public void doRefresh() {
-		//mainFrame.getApplication().getContext().
-		if (activeNode != null)  this.doSave(activeNode);
+    public void doRefresh() {
+        //mainFrame.getApplication().getContext().
+        if (activeNode != null) {
+            this.doSave(activeNode);
+        }
         if (data.getAdapter() != null) {
             data.getAdapter().loadDocumentsList();
             this.data.uploadAll();
+            data.loadEntries(false);
         }
-        
-		this.jMxroEditorPane.addFileHandler(new GoogleDocsFileHandler(data.getAdapter()));
-		data.loadEntries();
-        
-	}
 
-	public void doSave(GDocsEditorData.GDocNode gdocnode) {
-		
-    	if (initialText == null || !initialText.equals(jMxroEditorPane.getText())) {
+
         
+
+
+    }
+
+    public void doInitialSetup() {
+        
+            data.loadEntries(false);
+            data.uploadAll(data.loadLocalEntries(), true);
+            data.loadEntries(false);
+
+            data.refreshTree();
+
+            javax.swing.Timer cacheTimer = new javax.swing.Timer(5000, new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    if (!cachingRunning) {
+                        Thread t = new Thread() {
+
+                            @Override
+                            public void run() {
+                                cacheDocument();
+                            }
+                        };
+                        t.setPriority(Thread.MIN_PRIORITY);
+                        t.start();
+                    }
+
+                }
+            });
+            cacheTimer.setInitialDelay(10000);
+
+            cacheTimer.setRepeats(false);
+            cacheTimer.start();
+        
+
+        mainFrame.getApplication().getContext().getTaskService().execute(mainFrame.Refresh());
+    }
+
+    public void doNewDocument() {
+       // DocumentListEntry entry = new DocumentListEntry();
+       // entry.setTitle(new PlainTextConstruct("New *"));
+       // entry.setResourceId("document:" + (DateTime.now().getValue()));
+        //entry.setKind("document");
+        //entry.addExtension(Extension);
+        // entry.setContent(new TextContent(new PlainTextConstruct("<html><body></body></html>")));
+        // entry.setKind("html");
+       // entry.setUpdated(new com.google.gdata.data.DateTime(new Date(),
+      //          java.util.TimeZone.getDefault()));
+
+        // GDocsEditorData.GDocNode newNode = new GDocsEditorData.GDocNode(entry.getTitle().getPlainText(), entry.getDocId(), entry);
+        //  data.treeModel.insertNodeInto(new DefaultMutableTreeNode(newNode), data.googleDocsNode, 0);
+
+        /*jMxroEditorPane.
+        setText("<html><body></body></html>");
+        this.mainFrame.jTitleField.setText(newNode.plainText);
+        this.activeNode = newNode;
+        this.initialText = jMxroEditorPane.getText();*/
+
+        if (this.data.getAdapter() != null) {
+            try {
+                DocumentListEntry entry = this.data.getAdapter().createNewDocument("New", "document");
+                doRefresh();
+            //  this.data.getAdapter().loadDocumentsList();
+            // entry = this.data.getAdapter().getDocumentEntry(entry.getDocId());
+            //  GDocsEditorData.GDocNode newNode = new GDocsEditorData.GDocNode(entry.getTitle().getPlainText(), entry.getDocId(), entry);
+            //   data.treeModel.insertNodeInto(new DefaultMutableTreeNode(newNode), data.googleDocsNode, 0);
+            //  this.activeNode = new GDocsEditorData.GDocNode(entry.getTitle().getPlainText(), entry.getDocId(), entry);
+            //  ((DefaultMutableTreeNode) data.treeModel.getChild(data.googleDocsNode, 0)).setUserObject(this.activeNode);
+            } catch (IOException ex) {
+                Logger.getLogger(GDocsEditorApp.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ServiceException ex) {
+                Logger.getLogger(GDocsEditorApp.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public void doSave(GDocsEditorData.GDocNode gdocnode) {
+        // System.out.print("Save: "+gdocnode.plainText+" ...");
+        if (initialText == null || !initialText.equals(jMxroEditorPane.getText())) {
+
+
+
+            // assure that node is on tree
+            this.data.updateNode(gdocnode);
             try {
                 gdocnode.setDocumentData(jMxroEditorPane.getText());
                 gdocnode.entry.setTitle(new PlainTextConstruct(this.mainFrame.jTitleField.getText()));
                 gdocnode.plainText = this.mainFrame.jTitleField.getText();
-                gdocnode.entry.setUpdated(
-                        new com.google.gdata.data.DateTime(new Date(),
-                        java.util.TimeZone.getDefault()));
-
-                this.data.saveLocalFile(gdocnode, jMxroEditorPane.getText());
+                //System.out.println("Update doc: old updated = "+gdocnode.entry.getUpdated());
+                gdocnode.entry.getUpdated().setValue(gdocnode.entry.getUpdated().getValue() + 10);
+                //System.out.println("Update doc: new updated = "+gdocnode.entry.getUpdated());
+                // com.google.gdata.data.DateTime.now());
+                //System.out.println("Saved Text: "+gdocnode.getDocumentData());
+                this.data.saveLocalFile(gdocnode, gdocnode.getDocumentData());
+                this.initialText = jMxroEditorPane.getText();
+               // this.data.updateNode(gdocnode);
             } catch (IOException ex) {
                 Logger.getLogger(GDocsEditorApp.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
         }
-    	// String uploadHTML = data.getAdapter().prepareHTMLDocumentBeforeUpload(jMxroEditorPane.getText());
-    	// data.getAdapter().updateDocument(gdocnode.entry, uploadHTML);
-	}
 
-	public void documentSelected(GDocsEditorData.GDocNode node) {
-        if (this.activeNode != null) this.doSave(activeNode);
+    // this.mainFrame.getApplication().getContext().getTaskService().execute(this.mainFrame.Refresh());
+    // String uploadHTML = data.getAdapter().prepareHTMLDocumentBeforeUpload(jMxroEditorPane.getText());
+    // data.getAdapter().updateDocument(gdocnode.entry, uploadHTML);
+    }
 
-        
+    public void documentSelected(GDocsEditorData.GDocNode node) {
+        if (this.activeNode != null) {
+            this.doSave(activeNode);
+        }
+
+
         try {
-			this.data.cacheDocument(node);
+            this.data.cacheDocument(node);
             //String html = data.getAdapter().downloadDocument(docId, "html");
-			//System.out.println("==== downloaded text ====");
+            //System.out.println("==== downloaded text ====");
             //System.out.println(html);
-            jMxroEditorPane.
-                    setText(node.getDocumentData());
+            jMxroEditorPane.setText(node.getDocumentData());
             this.mainFrame.jTitleField.setText(node.plainText);
             this.activeNode = node;
             this.initialText = jMxroEditorPane.getText();
-		} catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
 
-			e.printStackTrace();
-		} catch (IOException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
 
-			e.printStackTrace();
-		} catch (ServiceException e) {
+            e.printStackTrace();
+        } catch (ServiceException e) {
 
-			e.printStackTrace();
-		}
-	}
+            e.printStackTrace();
+        }
+    }
 
     public void cacheDocument() {
         cachingRunning = true;
@@ -121,191 +228,199 @@ public class GDocsEditorApp {
         cachingRunning = false;
     }
 
-	
-	private class SelectDocumentTask extends org.jdesktop.application.Task<Object, Void> {
-		GDocsEditorData.GDocNode gdocnode;
-		
-		SelectDocumentTask(org.jdesktop.application.Application app, GDocsEditorData.GDocNode gdocnode) {
+    private class SelectDocumentTask extends org.jdesktop.application.Task<Object, Void> {
+
+        GDocsEditorData.GDocNode gdocnode;
+
+        SelectDocumentTask(org.jdesktop.application.Application app, GDocsEditorData.GDocNode gdocnode) {
             // Runs on the EDT.  Copy GUI state that
             // doInBackground() depends on from parameters
             // to RefreshTask fields, here.
             super(app);
             this.gdocnode = gdocnode;
         }
-        @Override protected Object doInBackground() {
+
+        @Override
+        protected Object doInBackground() {
             // Your Task's code here.  This method runs
             // on a background thread, so don't reference
             // the Swing GUI from here.
-        	documentSelected(gdocnode);
+            documentSelected(gdocnode);
             return true;  // return your result
         }
-        @Override protected void succeeded(Object result) {
+
+        @Override
+        protected void succeeded(Object result) {
             // Runs on the EDT.  Update the GUI based on
             // the result computed by doInBackground().
         }
     }
 
-	
-	public void init(String[] args) {
+    public void init(String[] args) {
 
-		GoogleDocsEditorGUIApp.startUpCallback = new StartUpCallback() {
+        GoogleDocsEditorGUIApp.startUpCallback = new StartUpCallback() {
 
             @Override
-			public void startedUp(GoogleDocsEditorGUIApp application) {
+            public void startedUp(GoogleDocsEditorGUIApp application) {
 
-				//while (GoogleDocsEditorApp.getApplication() == null) {}
+                //while (GoogleDocsEditorApp.getApplication() == null) {}
 
-				//while (!application.isReady) { }
+                //while (!application.isReady) { }
 
-				GoogleDocsEditorMainForm.EditorCallbacks callbacks = new GoogleDocsEditorMainForm.EditorCallbacks() {
-
-                    @Override
-					public void refresh() {
-						doRefresh();
-					}
+                GoogleDocsEditorMainForm.EditorCallbacks callbacks = new GoogleDocsEditorMainForm.EditorCallbacks() {
 
                     @Override
-					public void save(GDocsEditorData.GDocNode gdocnode) {
-						doSave(gdocnode);
-					}
-					
-					public void preferencesEdited() {
-						if (!data.setConnection(mainFrame.getSettings().getUsername(), mainFrame.getSettings().getPasswordUnenc())) {
-							JOptionPane.showMessageDialog(mainFrame.getComponent(), "Could not establish connection to Google Docs", "Connection Error", JOptionPane.ERROR_MESSAGE);
-						}
-					
-					}
+                    public void refresh() {
+                        doRefresh();
+                    }
 
-				};
+                    @Override
+                    public void save(GDocsEditorData.GDocNode gdocnode) {
+                        doSave(gdocnode);
+                    }
 
-				//while (application.getView() == null) { }
-				mainFrame = application.getView(); 
+                    public void preferencesEdited() {
+                        if (!data.setConnection(mainFrame.getSettings().getUsername(), mainFrame.getSettings().getPasswordUnenc())) {
+                            JOptionPane.showMessageDialog(mainFrame.getComponent(), "Could not establish connection to Google Docs", "Connection Error", JOptionPane.ERROR_MESSAGE);
+                        }
+
+                    }
+
+                    @Override
+                    public void newDocument() {
+                        doNewDocument();
+
+                    }
+
+                    @Override
+                    public void deleteDocument(GDocsEditorData.GDocNode gdocnode) {
+                        doDeleteDocument(gdocnode);
+                    }
+
+                    @Override
+                    public void clearLocalCache() {
+                        doClearLocalCache();
+                    }
+
+                    public void initialSetup() {
+                        doInitialSetup();
+                    }
+                };
+
+                //while (application.getView() == null) { }
+                mainFrame = application.getView();
                 mainFrame.app = GDocsEditorApp.this;
-				mainFrame.setCallbacks(callbacks);
+                mainFrame.setCallbacks(callbacks);
 
-				data = new GDocsEditorData(mainFrame.getApplication().getContext().getLocalStorage());
-				
-				if (mainFrame.getSettings() == null) {
-					mainFrame.editPreferences();
-				}
-				//mainFrame.getApplication().getContext().getLocalStorage().load("settings.xml");
-				
+                data = new GDocsEditorData(mainFrame.getApplication().getContext().getLocalStorage());
+
+
+                //mainFrame.getApplication().getContext().getLocalStorage().load("settings.xml");
+
 
                 MxroEkitFactory factory = MxroEkitFactory.getInstance();
                 //jMxroEditorPane.getT
                 mainFrame.jToolBar2.add(factory.getToolBarMain(true));
                 mainFrame.jToolBar3.add(factory.getToolBarFormat(true));
                 mainFrame.jToolBar4.add(factory.getToolBarStyles(true));
-              // mainFrame.jToolBar2.setVisible(false);
-               // mainFrame.jToolBar2.setVisible(true);
-                        //new MxroEditorPane();
-                
-                Font text =new Font("Verdana", Font.PLAIN, 14);
-                
+                // mainFrame.jToolBar2.setVisible(false);
+                // mainFrame.jToolBar2.setVisible(true);
+                //new MxroEditorPane();
+
+                Font text = new Font("Verdana", Font.PLAIN, 14);
+
                 MxroEkitTextPane pane = factory.createTextPane();
                 pane.setPreferredSize(null);
-                 pane
-                 .setFont(text);
-                 jMxroEditorPane = pane;
+                pane.setFont(text);
+                jMxroEditorPane = pane;
                 JScrollPane scrollPane =
-        new JScrollPane(
-            pane,
-            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-            JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+                        new JScrollPane(
+                        pane,
+                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
                 //JScrollPane scrollPane = new JScrollPane(jMxroEditorPane);
                 //scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-            mainFrame.jPanel6.add(scrollPane);
+                mainFrame.jPanel6.add(scrollPane);
                 //mainFrame.jSplitPane1.setRightComponent(scrollPane);
 
 
                 //mainFrame.jScrollPane2.setViewportView(jMxroEditorPane);
-				//mainFrame.getEditorComponent().add(scrollPane);
+                //mainFrame.getEditorComponent().add(scrollPane);
 
                 jTree1 = mainFrame.getDocumentsTree();
-      		jTree1.addTreeSelectionListener(new TreeSelectionListener() {
+                jTree1.addTreeSelectionListener(new TreeSelectionListener() {
 
                     @Override
-					public void valueChanged(TreeSelectionEvent e) {
-
-                        
-
-						DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-						jTree1.getLastSelectedPathComponent();
-
-						if (node == null)
-							return;
-
-						Object nodeInfo = node.getUserObject();
-						if (node.isLeaf()) {
-							GDocsEditorData.GDocNode gdocnode = (GDocsEditorData.GDocNode) nodeInfo;
-							
-							SelectDocumentTask task = new SelectDocumentTask(mainFrame.getApplication(), gdocnode);
-							mainFrame.getApplication().getContext().getTaskService().execute(task);
-							
-							
-						} 
-					}
+                    public void valueChanged(TreeSelectionEvent e) {
 
 
 
-				});
+                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
 
-				jTree1.setModel(data.getTreeModel());
+                        if (node == null) {
+                            return;
+                        }
 
-                mainFrame.callbacks.preferencesEdited();
+                        Object nodeInfo = node.getUserObject();
+                        if (node.isLeaf()) {
+                            GDocsEditorData.GDocNode gdocnode = (GDocsEditorData.GDocNode) nodeInfo;
 
-                data.loadLocalEntries();
-                data.uploadAll(data.entries, true);
+                            SelectDocumentTask task = new SelectDocumentTask(mainFrame.getApplication(), gdocnode);
+                            mainFrame.getApplication().getContext().getTaskService().execute(task);
 
-                mainFrame.getApplication().getContext().getTaskService().execute(mainFrame.Refresh());
 
-               /* mainFrame.getApplication().getContext().addTaskService(mainFrame.
-                        Refresh().getTaskService());*/
+                        }
+                    }
+                });
 
-              javax.swing.Timer cacheTimer =  new javax.swing.Timer(5000, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (!cachingRunning) {
-                    Thread t = new Thread() {
+                jTree1.setModel(data.getTreeModel());
 
-                                @Override
-                                public void run() {
-                                     cacheDocument();
-                                }
-
-                    };
-                    t.setPriority(Thread.MIN_PRIORITY);
-                    t.start();
+                // in order to establish connection to GDocs
+                if (mainFrame.getSettings() == null) {
+                    mainFrame.editPreferences();
+                } else {
+                    mainFrame.callbacks.preferencesEdited();
                 }
+
+                
+
+                jMxroEditorPane.addFileHandler(new GoogleDocsFileHandler(data.getAdapter()));
+
+                data.loadEntries(true);
+
+                data.refreshTree();
+
+                mainFrame.getApplication().getContext().getTaskService().execute(mainFrame.InitialSetUp());
+
                
+
+
+
+
+            /* mainFrame.getApplication().getContext().addTaskService(mainFrame.
+            Refresh().getTaskService());*/
+
+
+
+
             }
-        });
-        cacheTimer.setInitialDelay(10000);
-
-        cacheTimer.setRepeats(false);
-        cacheTimer.start();
-
-
-			}
-
-		};
-		GoogleDocsEditorGUIApp.launch(GoogleDocsEditorGUIApp.class, args);
+        };
+        GoogleDocsEditorGUIApp.launch(GoogleDocsEditorGUIApp.class, args);
 
 
 
-	}
-
+    }
     public static boolean cachingRunning = false;
     public static GDocsEditorApp app;
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
         app = new GDocsEditorApp();
-		app.init(args);
+        app.init(args);
 
 
 
-	}
-
+    }
 }
