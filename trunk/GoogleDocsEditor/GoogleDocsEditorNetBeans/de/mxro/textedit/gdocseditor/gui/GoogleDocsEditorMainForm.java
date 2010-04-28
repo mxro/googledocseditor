@@ -22,6 +22,7 @@ import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 /**
@@ -64,6 +65,10 @@ public class GoogleDocsEditorMainForm extends FrameView {
         public void save(GDocsEditorData.GDocNode gdocnode);
         public void refresh();
         public void preferencesEdited();
+        public void newDocument();
+        public void deleteDocument(GDocsEditorData.GDocNode gdocnode);
+        public void clearLocalCache();
+        public void initialSetup();
         
     }
 
@@ -168,13 +173,20 @@ public class GoogleDocsEditorMainForm extends FrameView {
 
         mainPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
+        jPanel8 = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jPanel9 = new javax.swing.JPanel();
+        jPanel10 = new javax.swing.JPanel();
         jToolBar2 = new javax.swing.JToolBar();
-        jToolBar3 = new javax.swing.JToolBar();
         jToolBar4 = new javax.swing.JToolBar();
+        jPanel7 = new javax.swing.JPanel();
+        jToolBar3 = new javax.swing.JToolBar();
         jPanel2 = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel5 = new javax.swing.JPanel();
@@ -200,9 +212,13 @@ public class GoogleDocsEditorMainForm extends FrameView {
         mainPanel.setName("mainPanel"); // NOI18N
         mainPanel.setLayout(new java.awt.BorderLayout());
 
+        jPanel1.setMinimumSize(new java.awt.Dimension(627, 114));
         jPanel1.setName("jPanel1"); // NOI18N
-        jPanel1.setPreferredSize(new java.awt.Dimension(211, 65));
-        jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+        jPanel1.setPreferredSize(new java.awt.Dimension(211, 94));
+        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.X_AXIS));
+
+        jPanel8.setName("jPanel8"); // NOI18N
+        jPanel8.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
         jToolBar1.setRollover(true);
         jToolBar1.setName("jToolBar1"); // NOI18N
@@ -214,16 +230,25 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jButton1.setFocusable(false);
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton1.setName("jButton1"); // NOI18N
+        jButton1.setPreferredSize(new java.awt.Dimension(78, 70));
         jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton1);
 
-        jButton2.setAction(actionMap.get("editPreferences")); // NOI18N
-        jButton2.setText(resourceMap.getString("jButton2.text")); // NOI18N
-        jButton2.setFocusable(false);
-        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton2.setName("jButton2"); // NOI18N
-        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton2);
+        jButton4.setAction(actionMap.get("NewDocumentAsync")); // NOI18N
+        jButton4.setText(resourceMap.getString("jButton4.text")); // NOI18N
+        jButton4.setFocusable(false);
+        jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton4.setName("jButton4"); // NOI18N
+        jButton4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(jButton4);
+
+        jButton5.setAction(actionMap.get("DeleteDocumentAsync")); // NOI18N
+        jButton5.setText(resourceMap.getString("jButton5.text")); // NOI18N
+        jButton5.setFocusable(false);
+        jButton5.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton5.setName("jButton5"); // NOI18N
+        jButton5.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(jButton5);
 
         jButton3.setAction(actionMap.get("Save")); // NOI18N
         jButton3.setText(resourceMap.getString("jButton3.text")); // NOI18N
@@ -233,19 +258,52 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton3);
 
-        jPanel1.add(jToolBar1);
+        jButton6.setAction(actionMap.get("ClearCacheAsync")); // NOI18N
+        jButton6.setText(resourceMap.getString("jButton6.text")); // NOI18N
+        jButton6.setFocusable(false);
+        jButton6.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton6.setName("jButton6"); // NOI18N
+        jButton6.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(jButton6);
+
+        jButton2.setAction(actionMap.get("editPreferences")); // NOI18N
+        jButton2.setText(resourceMap.getString("jButton2.text")); // NOI18N
+        jButton2.setFocusable(false);
+        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton2.setName("jButton2"); // NOI18N
+        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(jButton2);
+
+        jPanel8.add(jToolBar1);
+
+        jPanel1.add(jPanel8);
+
+        jPanel9.setName("jPanel9"); // NOI18N
+        jPanel9.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+
+        jPanel10.setName("jPanel10"); // NOI18N
+        jPanel10.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
         jToolBar2.setRollover(true);
         jToolBar2.setName("jToolBar2"); // NOI18N
-        jPanel1.add(jToolBar2);
-
-        jToolBar3.setRollover(true);
-        jToolBar3.setName("jToolBar3"); // NOI18N
-        jPanel1.add(jToolBar3);
+        jPanel10.add(jToolBar2);
 
         jToolBar4.setRollover(true);
         jToolBar4.setName("jToolBar4"); // NOI18N
-        jPanel1.add(jToolBar4);
+        jPanel10.add(jToolBar4);
+
+        jPanel9.add(jPanel10);
+
+        jPanel7.setName("jPanel7"); // NOI18N
+        jPanel7.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+
+        jToolBar3.setRollover(true);
+        jToolBar3.setName("jToolBar3"); // NOI18N
+        jPanel7.add(jToolBar3);
+
+        jPanel9.add(jPanel7);
+
+        jPanel1.add(jPanel9);
 
         mainPanel.add(jPanel1, java.awt.BorderLayout.NORTH);
 
@@ -336,11 +394,11 @@ public class GoogleDocsEditorMainForm extends FrameView {
         statusPanel.setLayout(statusPanelLayout);
         statusPanelLayout.setHorizontalGroup(
             statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 773, Short.MAX_VALUE)
+            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 799, Short.MAX_VALUE)
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 609, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 635, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -467,18 +525,140 @@ public class GoogleDocsEditorMainForm extends FrameView {
                 callbacks.preferencesEdited();
     }
 
+    @Action
+    public void NewDocument() {
+
+
+    }
+
+    @Action
+    public Task NewDocumentAsync() {
+        return new NewDocumentAsyncTask(getApplication());
+    }
+
+    private class NewDocumentAsyncTask extends org.jdesktop.application.Task<Object, Void> {
+        NewDocumentAsyncTask(org.jdesktop.application.Application app) {
+            // Runs on the EDT.  Copy GUI state that
+            // doInBackground() depends on from parameters
+            // to NewDocumentAsyncTask fields, here.
+            super(app);
+        }
+        @Override protected Object doInBackground() {
+            callbacks.newDocument();
+            return null;
+        }
+        @Override protected void succeeded(Object result) {
+            // Runs on the EDT.  Update the GUI based on
+            // the result computed by doInBackground().
+        }
+    }
+
+    @Action
+    public Task DeleteDocumentAsync() {
+         DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+        jTree1.getLastSelectedPathComponent();
+
+    	if (node == null) return null;
+    	if (!(node.getUserObject() instanceof GDocsEditorData.GDocNode)) return null;
+
+    	GDocsEditorData.GDocNode gdocnode = (GDocsEditorData.GDocNode) node.getUserObject();
+
+        ((DefaultTreeModel) jTree1.getModel()).removeNodeFromParent(node);
+
+        return new DeleteDocumentAsyncTask(getApplication(), gdocnode);
+    }
+
+    private class DeleteDocumentAsyncTask extends org.jdesktop.application.Task<Object, Void> {
+        GDocsEditorData.GDocNode gdocnode;
+        DeleteDocumentAsyncTask(org.jdesktop.application.Application app, GDocsEditorData.GDocNode gdocnode) {
+            // Runs on the EDT.  Copy GUI state that
+            // doInBackground() depends on from parameters
+            // to DeleteDocumentAsyncTask fields, here.
+
+            super(app);
+
+            this.gdocnode = gdocnode;
+        }
+        @Override protected Object doInBackground() {
+            callbacks.deleteDocument(gdocnode);
+            return null;  // return your result
+        }
+        @Override protected void succeeded(Object result) {
+            // Runs on the EDT.  Update the GUI based on
+            // the result computed by doInBackground().
+        }
+    }
+
+    @Action
+    public Task ClearCacheAsync() {
+        return new ClearCacheAsyncTask(getApplication());
+    }
+
+    private class ClearCacheAsyncTask extends org.jdesktop.application.Task<Object, Void> {
+        ClearCacheAsyncTask(org.jdesktop.application.Application app) {
+            // Runs on the EDT.  Copy GUI state that
+            // doInBackground() depends on from parameters
+            // to ClearCacheAsyncTask fields, here.
+            super(app);
+        }
+        @Override protected Object doInBackground() {
+            callbacks.clearLocalCache();
+            // Your Task's code here.  This method runs
+            // on a background thread, so don't reference
+            // the Swing GUI from here.
+            return null;  // return your result
+        }
+        @Override protected void succeeded(Object result) {
+            // Runs on the EDT.  Update the GUI based on
+            // the result computed by doInBackground().
+        }
+    }
+
+    @Action
+    public Task InitialSetUp() {
+        return new InitialSetUpTask(getApplication());
+    }
+
+    private class InitialSetUpTask extends org.jdesktop.application.Task<Object, Void> {
+        InitialSetUpTask(org.jdesktop.application.Application app) {
+            // Runs on the EDT.  Copy GUI state that
+            // doInBackground() depends on from parameters
+            // to InitialSetUpTask fields, here.
+            super(app);
+        }
+        @Override protected Object doInBackground() {
+            callbacks.initialSetup();
+            return null;  // return your result
+        }
+        @Override protected void succeeded(Object result) {
+            // Runs on the EDT.  Update the GUI based on
+            // the result computed by doInBackground().
+        }
+    }
+
+
+
+
+
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton jButton1;
     public javax.swing.JButton jButton2;
     public javax.swing.JButton jButton3;
+    public javax.swing.JButton jButton4;
+    public javax.swing.JButton jButton5;
+    public javax.swing.JButton jButton6;
     public javax.swing.JPanel jPanel1;
+    public javax.swing.JPanel jPanel10;
     public javax.swing.JPanel jPanel2;
     public javax.swing.JPanel jPanel3;
     public javax.swing.JPanel jPanel4;
     public javax.swing.JPanel jPanel5;
     public javax.swing.JPanel jPanel6;
+    public javax.swing.JPanel jPanel7;
+    public javax.swing.JPanel jPanel8;
+    public javax.swing.JPanel jPanel9;
     public javax.swing.JScrollPane jScrollPane1;
     public javax.swing.JSplitPane jSplitPane1;
     public javax.swing.JTextField jTitleField;

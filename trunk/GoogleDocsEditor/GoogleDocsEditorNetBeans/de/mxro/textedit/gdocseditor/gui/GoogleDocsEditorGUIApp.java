@@ -4,13 +4,10 @@
 
 package de.mxro.textedit.gdocseditor.gui;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.EventObject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
+import org.jdesktop.application.Task;
 
 /**
  * The main class of the application.
@@ -43,7 +40,11 @@ public class GoogleDocsEditorGUIApp extends SingleFrameApplication {
         getView().getFrame().doLayout();
         getView().getFrame().dispose();
         //this.getView().
+        Task t = this.getView().Refresh();
+        t.execute();
+        while (!t.isDone()) {}
         this.getView().app.doSaveEntries();
+
         super.exit(event);
     }
 
