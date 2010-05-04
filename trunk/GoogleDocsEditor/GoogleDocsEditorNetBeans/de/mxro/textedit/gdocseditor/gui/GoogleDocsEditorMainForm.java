@@ -6,7 +6,6 @@ package de.mxro.textedit.gdocseditor.gui;
 
 import de.mxro.textedit.gdocseditor.GDocsEditorApp;
 import de.mxro.textedit.gdocseditor.GDocsEditorData;
-import de.mxro.textedit.gdocseditor.gui.GoogleDocsEditorAboutBox;
 import java.awt.dnd.DnDConstants;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
@@ -317,7 +316,6 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jPanel5.setLayout(new java.awt.BorderLayout());
 
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        jScrollPane1.setMinimumSize(null);
         jScrollPane1.setName("jScrollPane1"); // NOI18N
         jScrollPane1.setOpaque(false);
         jScrollPane1.setRequestFocusEnabled(false);
@@ -398,7 +396,7 @@ public class GoogleDocsEditorMainForm extends FrameView {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 635, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 603, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
