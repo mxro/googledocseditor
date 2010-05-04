@@ -5,6 +5,10 @@
 package de.mxro.textedit.gdocseditor.gui;
 
 import java.util.EventObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.Task;
@@ -52,6 +56,7 @@ public class GoogleDocsEditorGUIApp extends SingleFrameApplication {
      * At startup create and show the main frame of the application.
      */
     @Override protected void startup() {
+       
         view = new GoogleDocsEditorMainForm(this);
         show(view);
 
