@@ -290,6 +290,17 @@ public class GDocsEditorApp {
 
 
                 MxroEkitFactory factory = MxroEkitFactory.getInstance();
+
+                MxroEkitFactory.Buttons buttons = factory.getButtons();
+                buttons.registerBoldButton(mainFrame.jButtonBold);
+                buttons.registerItalicButton(mainFrame.jButtonItalic);
+                buttons.registerUnderlineButton(mainFrame.jButtonUnderline);
+
+                buttons.registerCutButton(mainFrame.jButtonCut);
+                buttons.registerCopyButton(mainFrame.jButtonCopy);
+                buttons.registerPasteButton(mainFrame.jButtonPaste);
+
+
                 //jMxroEditorPane.getT
                 mainFrame.jToolBar2.add(factory.getToolBarMain(true));
                 mainFrame.jToolBar3.add(factory.getToolBarFormat(true));
@@ -301,6 +312,7 @@ public class GDocsEditorApp {
                 Font text = new Font("Verdana", Font.PLAIN, 14);
 
                 MxroEkitTextPane pane = factory.createTextPane();
+                factory.selectTextPane(pane);
                 pane.setPreferredSize(null);
                 pane.setFont(text);
                 jMxroEditorPane = pane;
