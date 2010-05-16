@@ -177,12 +177,17 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jButton1 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jPanel9 = new javax.swing.JPanel();
         jPanel10 = new javax.swing.JPanel();
         jToolBar2 = new javax.swing.JToolBar();
+        jButtonBold = new javax.swing.JButton();
+        jButtonItalic = new javax.swing.JButton();
+        jButtonUnderline = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JToolBar.Separator();
+        jButtonCopy = new javax.swing.JButton();
+        jButtonPaste = new javax.swing.JButton();
+        jButtonCut = new javax.swing.JButton();
         jToolBar4 = new javax.swing.JToolBar();
         jPanel7 = new javax.swing.JPanel();
         jToolBar3 = new javax.swing.JToolBar();
@@ -213,12 +218,14 @@ public class GoogleDocsEditorMainForm extends FrameView {
 
         jPanel1.setMinimumSize(new java.awt.Dimension(627, 114));
         jPanel1.setName("jPanel1"); // NOI18N
-        jPanel1.setPreferredSize(new java.awt.Dimension(211, 94));
+        jPanel1.setPreferredSize(new java.awt.Dimension(211, 60));
         jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.X_AXIS));
 
+        jPanel8.setMaximumSize(new java.awt.Dimension(250, 32767));
         jPanel8.setName("jPanel8"); // NOI18N
         jPanel8.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
+        jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
         jToolBar1.setName("jToolBar1"); // NOI18N
 
@@ -229,7 +236,6 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jButton1.setFocusable(false);
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton1.setName("jButton1"); // NOI18N
-        jButton1.setPreferredSize(new java.awt.Dimension(78, 70));
         jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton1);
 
@@ -237,7 +243,10 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jButton4.setText(resourceMap.getString("jButton4.text")); // NOI18N
         jButton4.setFocusable(false);
         jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton4.setMaximumSize(new java.awt.Dimension(78, 48));
+        jButton4.setMinimumSize(new java.awt.Dimension(78, 48));
         jButton4.setName("jButton4"); // NOI18N
+        jButton4.setPreferredSize(new java.awt.Dimension(78, 48));
         jButton4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton4);
 
@@ -245,31 +254,19 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jButton5.setText(resourceMap.getString("jButton5.text")); // NOI18N
         jButton5.setFocusable(false);
         jButton5.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton5.setMaximumSize(new java.awt.Dimension(78, 48));
         jButton5.setName("jButton5"); // NOI18N
+        jButton5.setPreferredSize(new java.awt.Dimension(78, 48));
         jButton5.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton5);
-
-        jButton3.setAction(actionMap.get("Save")); // NOI18N
-        jButton3.setText(resourceMap.getString("jButton3.text")); // NOI18N
-        jButton3.setFocusable(false);
-        jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton3.setName("jButton3"); // NOI18N
-        jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton3);
-
-        jButton6.setAction(actionMap.get("ClearCacheAsync")); // NOI18N
-        jButton6.setText(resourceMap.getString("jButton6.text")); // NOI18N
-        jButton6.setFocusable(false);
-        jButton6.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton6.setName("jButton6"); // NOI18N
-        jButton6.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton6);
 
         jButton2.setAction(actionMap.get("editPreferences")); // NOI18N
         jButton2.setText(resourceMap.getString("jButton2.text")); // NOI18N
         jButton2.setFocusable(false);
         jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton2.setMaximumSize(new java.awt.Dimension(78, 48));
         jButton2.setName("jButton2"); // NOI18N
+        jButton2.setPreferredSize(new java.awt.Dimension(78, 48));
         jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton2);
 
@@ -277,16 +274,66 @@ public class GoogleDocsEditorMainForm extends FrameView {
 
         jPanel1.add(jPanel8);
 
+        jPanel9.setMinimumSize(new java.awt.Dimension(120, 24));
         jPanel9.setName("jPanel9"); // NOI18N
+        jPanel9.setPreferredSize(new java.awt.Dimension(350, 24));
         jPanel9.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
         jPanel10.setName("jPanel10"); // NOI18N
         jPanel10.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
+        jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
         jToolBar2.setName("jToolBar2"); // NOI18N
+
+        jButtonBold.setText(resourceMap.getString("jButtonBold.text")); // NOI18N
+        jButtonBold.setFocusable(false);
+        jButtonBold.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonBold.setName("jButtonBold"); // NOI18N
+        jButtonBold.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar2.add(jButtonBold);
+
+        jButtonItalic.setText(resourceMap.getString("jButtonItalic.text")); // NOI18N
+        jButtonItalic.setFocusable(false);
+        jButtonItalic.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonItalic.setName("jButtonItalic"); // NOI18N
+        jButtonItalic.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar2.add(jButtonItalic);
+
+        jButtonUnderline.setText(resourceMap.getString("jButtonUnderline.text")); // NOI18N
+        jButtonUnderline.setFocusable(false);
+        jButtonUnderline.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonUnderline.setName("jButtonUnderline"); // NOI18N
+        jButtonUnderline.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar2.add(jButtonUnderline);
+
+        jSeparator1.setName("jSeparator1"); // NOI18N
+        jToolBar2.add(jSeparator1);
+
+        jButtonCopy.setText(resourceMap.getString("jButtonCopy.text")); // NOI18N
+        jButtonCopy.setFocusable(false);
+        jButtonCopy.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonCopy.setName("jButtonCopy"); // NOI18N
+        jButtonCopy.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar2.add(jButtonCopy);
+
+        jButtonPaste.setText(resourceMap.getString("jButtonPaste.text")); // NOI18N
+        jButtonPaste.setFocusable(false);
+        jButtonPaste.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonPaste.setName("jButtonPaste"); // NOI18N
+        jButtonPaste.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar2.add(jButtonPaste);
+
+        jButtonCut.setText(resourceMap.getString("jButtonCut.text")); // NOI18N
+        jButtonCut.setFocusable(false);
+        jButtonCut.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonCut.setName("jButtonCut"); // NOI18N
+        jButtonCut.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar2.add(jButtonCut);
+
         jPanel10.add(jToolBar2);
 
+        jToolBar4.setFloatable(false);
         jToolBar4.setRollover(true);
         jToolBar4.setName("jToolBar4"); // NOI18N
         jPanel10.add(jToolBar4);
@@ -296,6 +343,7 @@ public class GoogleDocsEditorMainForm extends FrameView {
         jPanel7.setName("jPanel7"); // NOI18N
         jPanel7.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
+        jToolBar3.setFloatable(false);
         jToolBar3.setRollover(true);
         jToolBar3.setName("jToolBar3"); // NOI18N
         jPanel7.add(jToolBar3);
@@ -643,10 +691,14 @@ public class GoogleDocsEditorMainForm extends FrameView {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton jButton1;
     public javax.swing.JButton jButton2;
-    public javax.swing.JButton jButton3;
     public javax.swing.JButton jButton4;
     public javax.swing.JButton jButton5;
-    public javax.swing.JButton jButton6;
+    public javax.swing.JButton jButtonBold;
+    public javax.swing.JButton jButtonCopy;
+    public javax.swing.JButton jButtonCut;
+    public javax.swing.JButton jButtonItalic;
+    public javax.swing.JButton jButtonPaste;
+    public javax.swing.JButton jButtonUnderline;
     public javax.swing.JPanel jPanel1;
     public javax.swing.JPanel jPanel10;
     public javax.swing.JPanel jPanel2;
@@ -658,6 +710,7 @@ public class GoogleDocsEditorMainForm extends FrameView {
     public javax.swing.JPanel jPanel8;
     public javax.swing.JPanel jPanel9;
     public javax.swing.JScrollPane jScrollPane1;
+    public javax.swing.JToolBar.Separator jSeparator1;
     public javax.swing.JSplitPane jSplitPane1;
     public javax.swing.JTextField jTitleField;
     public javax.swing.JToolBar jToolBar1;
